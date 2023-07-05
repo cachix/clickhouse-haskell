@@ -43,7 +43,6 @@ library
                       extra,
                       http-client,
                       http-client-tls,
-                      resource-pool       >= 0.4,
                       text,
                       uri-encode
 

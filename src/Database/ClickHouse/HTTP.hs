@@ -4,9 +4,8 @@ module Database.ClickHouse.HTTP
     defaultConnectionInfo,
     HttpConnection,
 
-    -- * Open a connection or pool
+    -- * Open a new connection
     connect,
-    connectWithPool,
 
     -- * Interact with ClickHouse
     ping,
@@ -20,7 +19,6 @@ import Data.Aeson.KeyMap qualified as KM
 import Data.ByteString qualified as Bytes
 import Data.ByteString.Lazy qualified as LazyBytes
 import Data.Either.Extra (maybeToEither)
-import Data.Pool (Pool, defaultPoolConfig, newPool)
 import Data.Text (Text)
 import Data.Text qualified as Text
 import Data.Text.Encoding qualified as Text.Encode
@@ -61,12 +59,6 @@ connect connectionInfo@HttpConnectionInfo {..} = do
     unknownScheme -> error $ "Unsupported scheme: " <> Text.unpack unknownScheme
 
   pure HttpConnection {..}
-
-connectWithPool :: HttpConnectionInfo -> Int -> IO (Pool HttpConnection)
-connectWithPool connectionInfo maxResources =
-  let poolConfig =
-        defaultPoolConfig (connect connectionInfo) (\_ -> pure ()) 1 maxResources
-   in newPool poolConfig
 
 -- Client
 
