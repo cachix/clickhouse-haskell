@@ -27,7 +27,7 @@ newUrl conn cmd =
                 then mempty
                 else
                   Builder.singleton '?'
-                    <> renderQueryParams (buildQueryParams (databaseParam : queryParams))
+                    <> renderQueryParams (buildQueryParams (databaseParam : conn.queryParams ++ queryParams))
             ]
 
 type QueryParam = (Text, Text)

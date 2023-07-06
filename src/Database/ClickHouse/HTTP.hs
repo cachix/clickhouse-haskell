@@ -37,7 +37,8 @@ defaultConnectionInfo =
       port = 8123,
       username = "default",
       password = "",
-      database = Nothing
+      database = Nothing,
+      queryParams = []
     }
 
 data HttpConnection = HttpConnection

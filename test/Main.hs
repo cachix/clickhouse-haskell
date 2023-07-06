@@ -28,6 +28,13 @@ spec = do
               }
        in UrlBuilder.newUrl connectionInfo (Query "SELECT 1") `shouldBe` "https://example:54000/?database=test&query=SELECT%201"
 
+    it "passes through the default query params" $
+      let connectionInfo =
+            CH.defaultConnectionInfo
+              { CH.queryParams = [("date_time_output_format", "iso")]
+              }
+       in UrlBuilder.newUrl connectionInfo (Query "SELECT 1") `shouldBe` "http://localhost:8123/?date_time_output_format=iso&query=SELECT%201"
+
   describe "ping" $ do
     it "pings" $ do
       connection <- CH.connect CH.defaultConnectionInfo

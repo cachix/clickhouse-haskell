@@ -8,7 +8,8 @@ data HttpConnectionInfo = HttpConnectionInfo
     port :: Int,
     username :: Text,
     password :: Text,
-    database :: Maybe Text
+    database :: Maybe Text,
+    queryParams :: [(Text, Text)]
   }
 
 data Command = Ping | Query Text
