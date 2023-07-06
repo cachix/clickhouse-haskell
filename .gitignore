@@ -2,6 +2,7 @@ result
 result-*
 
 dist-newstyle/
+.stack-work/
 
 # Devenv
 .devenv*
