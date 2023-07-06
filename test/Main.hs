@@ -16,7 +16,8 @@ spec :: Spec
 spec = do
   describe "url" $ do
     it "builds a url for the default connection" $
-      UrlBuilder.newUrl CH.defaultConnectionInfo (Query "SELECT 1") `shouldBe` "http://localhost:8123/?query=SELECT%201"
+      UrlBuilder.newUrl CH.defaultConnectionInfo (Query "SELECT 1")
+        `shouldBe` "http://localhost:8123/?query=SELECT%201"
 
     it "builds a url for a custom connection" $
       let connectionInfo =
@@ -26,14 +27,16 @@ spec = do
                 port = 54000,
                 CH.database = Just "test"
               }
-       in UrlBuilder.newUrl connectionInfo (Query "SELECT 1") `shouldBe` "https://example:54000/?database=test&query=SELECT%201"
+       in UrlBuilder.newUrl connectionInfo (Query "SELECT 1")
+            `shouldBe` "https://example:54000/?database=test&query=SELECT%201"
 
     it "passes through the default query params" $
       let connectionInfo =
             CH.defaultConnectionInfo
               { CH.queryParams = [("date_time_output_format", "iso")]
               }
-       in UrlBuilder.newUrl connectionInfo (Query "SELECT 1") `shouldBe` "http://localhost:8123/?date_time_output_format=iso&query=SELECT%201"
+       in UrlBuilder.newUrl connectionInfo (Query "SELECT 1")
+            `shouldBe` "http://localhost:8123/?date_time_output_format=iso&query=SELECT%201"
 
   describe "ping" $ do
     it "pings" $ do
