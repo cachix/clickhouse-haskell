@@ -21,7 +21,6 @@ newUrl conn cmd =
               Builder.fromText conn.host,
               Builder.singleton ':',
               Builder.fromString (show conn.port),
-              Builder.singleton '/',
               Builder.fromText path,
               if null queryParams
                 then mempty
@@ -36,9 +35,9 @@ buildCommand :: Command -> (Text, [QueryParam])
 buildCommand cmd =
   case cmd of
     Ping ->
-      ("ping", [])
+      ("/ping", [])
     Query queryText ->
-      ("", [("query", Network.Encode.encodeText queryText)])
+      ("/", [("query", Network.Encode.encodeText queryText)])
 
 queryParamFromMaybe :: Text -> Maybe Text -> QueryParam
 queryParamFromMaybe key = maybe mempty (key,)
