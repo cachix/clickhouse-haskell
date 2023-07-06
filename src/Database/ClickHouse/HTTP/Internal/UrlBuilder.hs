@@ -37,12 +37,8 @@ buildCommand cmd =
   case cmd of
     Ping ->
       ("ping", [])
-    Query format queryText ->
-      let finalQuery =
-            queryText <> case format of
-              Default -> ""
-              Json -> " FORMAT " <> Text.pack (show format)
-       in ("", [("query", Network.Encode.encodeText finalQuery)])
+    Query queryText ->
+      ("", [("query", Network.Encode.encodeText queryText)])
 
 queryParamFromMaybe :: Text -> Maybe Text -> QueryParam
 queryParamFromMaybe key = maybe mempty (key,)

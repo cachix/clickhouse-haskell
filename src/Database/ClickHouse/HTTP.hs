@@ -60,11 +60,11 @@ ping :: HttpConnection -> IO LazyBytes.ByteString
 ping = runCommand Ping
 
 query :: Text -> HttpConnection -> IO LazyBytes.ByteString
-query = runCommand . Query Default
+query = runCommand . Query
 
 queryJson :: (Aeson.FromJSON a) => Text -> HttpConnection -> IO (Either Text a)
 queryJson q conn = do
-  response <- runCommand (Query Json q) conn
+  response <- runCommand (Query q) conn
   return $ do
     dat <- extractData response
     case Aeson.fromJSON dat of

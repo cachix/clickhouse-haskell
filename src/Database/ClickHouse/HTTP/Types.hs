@@ -11,11 +11,4 @@ data HttpConnectionInfo = HttpConnectionInfo
     database :: Maybe Text
   }
 
--- TODO: It's questionable whether this should be part of the API.
-data Format = Default | Json
-
-instance Show Format where
-  show Default = ""
-  show Json = "JSON"
-
-data Command = Ping | Query Format Text
+data Command = Ping | Query Text
