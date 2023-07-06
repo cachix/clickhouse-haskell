@@ -1,6 +1,6 @@
 module Database.ClickHouse.HTTP
   ( -- * Connection
-    HttpConnectionInfo (..),
+    Types.HttpConnectionInfo (..),
     defaultConnectionInfo,
     HttpConnection,
 
@@ -11,32 +11,23 @@ module Database.ClickHouse.HTTP
     ping,
     query,
     queryJson,
+
+    -- * Helpers
+    extractData,
   )
 where
 
 import Data.Aeson qualified as Aeson
 import Data.Aeson.KeyMap qualified as KM
-import Data.ByteString qualified as Bytes
 import Data.ByteString.Lazy qualified as LazyBytes
 import Data.Either.Extra (maybeToEither)
-import Data.List (intersperse)
 import Data.Text (Text)
 import Data.Text qualified as Text
 import Data.Text.Encoding qualified as Text.Encode
-import Data.Text.Lazy qualified as Text.Lazy
-import Data.Text.Lazy.Builder qualified as Builder
+import Database.ClickHouse.HTTP.Internal.UrlBuilder qualified as UrlBuilder
+import Database.ClickHouse.HTTP.Types as Types
 import Network.HTTP.Client qualified as HTTP
 import Network.HTTP.Client.TLS qualified as HTTPS
-import Network.URI.Encode qualified as Network.Encode
-
-data HttpConnectionInfo = HttpConnectionInfo
-  { secure :: Bool,
-    host :: Text,
-    port :: Int,
-    username :: Text,
-    password :: Text,
-    database :: Maybe Text
-  }
 
 defaultConnectionInfo :: HttpConnectionInfo
 defaultConnectionInfo =
@@ -65,15 +56,6 @@ connect connectionInfo@HttpConnectionInfo {..} = do
 
 -- Client
 
--- TODO: It's questionable whether this should be part of the API.
-data Format = Default | Json
-
-instance Show Format where
-  show Default = ""
-  show Json = "JSON"
-
-data Command = Ping | Query Format Text
-
 ping :: HttpConnection -> IO LazyBytes.ByteString
 ping = runCommand Ping
 
@@ -91,7 +73,7 @@ queryJson q conn = do
 
 runCommand :: Command -> HttpConnection -> IO LazyBytes.ByteString
 runCommand cmd conn = do
-  let url = newUrl conn.connectionInfo cmd
+  let url = UrlBuilder.newUrl conn.connectionInfo cmd
       headers = authHeaders
 
   initialRequest <- HTTP.parseRequest (Text.unpack url)
@@ -116,53 +98,3 @@ extractData bs =
       Left $ "JSON response is not an object: " <> Text.pack (show resp)
     Left err ->
       Left $ "Could not parse ClickHouse JSON response: " <> Text.pack err
-
--- URL builders
-
-newUrl :: HttpConnectionInfo -> Command -> Text
-newUrl conn cmd =
-  let databaseParam = queryParamFromMaybe "database" conn.database
-      (path, queryParams) = buildCommand cmd
-   in Text.Lazy.toStrict $
-        Builder.toLazyText $
-          mconcat
-            [ Builder.fromText (if conn.secure then "https://" else "http://"),
-              Builder.fromText conn.host,
-              Builder.singleton ':',
-              Builder.fromString (show conn.port),
-              Builder.singleton '/',
-              Builder.fromText path,
-              if null queryParams
-                then mempty
-                else
-                  Builder.singleton '?'
-                    <> renderQueryParams (buildQueryParams (databaseParam : queryParams))
-            ]
-
-type QueryParam = (Text, Text)
-
-buildCommand :: Command -> (Text, [QueryParam])
-buildCommand cmd =
-  case cmd of
-    Ping ->
-      ("ping", [])
-    Query format queryText ->
-      let finalQuery =
-            queryText <> case format of
-              Default -> ""
-              Json -> " FORMAT " <> Text.pack (show format)
-       in ("", [("query", Network.Encode.encodeText finalQuery)])
-
-queryParamFromMaybe :: Text -> Maybe Text -> QueryParam
-queryParamFromMaybe key = maybe mempty (key,)
-
-buildQueryParams :: [QueryParam] -> [QueryParam]
-buildQueryParams = filter (not . Text.null . fst)
-
-renderQueryParams :: [QueryParam] -> Builder.Builder
-renderQueryParams =
-  mconcat . intersperse (Builder.singleton '&') . fmap renderQueryParam
-
-renderQueryParam :: QueryParam -> Builder.Builder
-renderQueryParam (key, value) =
-  Builder.fromText key <> Builder.singleton '=' <> Builder.fromText value

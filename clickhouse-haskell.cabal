@@ -28,7 +28,9 @@ common warnings
 
 library
     import:           warnings
-    exposed-modules:  Database.ClickHouse.HTTP
+    exposed-modules:  Database.ClickHouse.HTTP,
+                      Database.ClickHouse.HTTP.Internal.UrlBuilder,
+                      Database.ClickHouse.HTTP.Types
 
     -- Modules included in this library but not exported.
     -- other-modules:
