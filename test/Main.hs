@@ -4,6 +4,8 @@ module Main (main) where
 
 import Data.Aeson
 import Database.ClickHouse.HTTP qualified as CH
+import Database.ClickHouse.HTTP.Internal.UrlBuilder qualified as UrlBuilder
+import Database.ClickHouse.HTTP.Types
 import GHC.Generics
 import Test.Hspec
 
@@ -12,6 +14,20 @@ main = hspec spec
 
 spec :: Spec
 spec = do
+  describe "url" $ do
+    it "builds a url for the default connection" $
+      UrlBuilder.newUrl CH.defaultConnectionInfo (Query Default "SELECT 1") `shouldBe` "http://localhost:8123/?query=SELECT%201"
+
+    it "builds a url for a custom connection" $
+      let connectionInfo =
+            CH.defaultConnectionInfo
+              { secure = True,
+                host = "example",
+                port = 54000,
+                CH.database = Just "test"
+              }
+       in UrlBuilder.newUrl connectionInfo (Query Default "SELECT 1") `shouldBe` "https://example:54000/?database=test&query=SELECT%201"
+
   describe "ping" $ do
     it "pings" $ do
       connection <- CH.connect CH.defaultConnectionInfo
