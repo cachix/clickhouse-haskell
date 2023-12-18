@@ -10,44 +10,10 @@
       imports = [ inputs.haskell-flake.flakeModule ];
 
       perSystem = { self', pkgs, ... }: {
-
-        # Typically, you just want a single project named "default". But
-        # multiple projects are also possible, each using different GHC version.
         haskellProjects.default = {
-          # The base package set representing a specific GHC version.
-          # By default, this is pkgs.haskellPackages.
-          # You may also create your own. See https://haskell.flake.page/package-set
-          # basePackages = pkgs.haskellPackages;
-
-          # Extra package information. See https://haskell.flake.page/dependency
-          #
-          # Note that local packages are automatically included in `packages`
-          # (defined by `defaults.packages` option).
-          #
-          # packages = { 
-          #   aeson.source = "1.5.0.0"; # Hackage version override
-          #   shower.source = inputs.shower; 
-          # };
-          # settings = { 
-          #   aeson = {
-          #     check = false;
-          #   };
-          #   relude = {
-          #     haddock = false;
-          #     broken = false;
-          #   };
-          # };
-
-          # devShell = {
-          #  # Enabled by default
-          #  enable = true;  
-          #
-          #  # Programs you want to make available in the shell.
-          #  # Default programs can be disabled by setting to 'null'
-          #  tools = hp: { fourmolu = hp.fourmolu; ghcid = null; };
-          #
-          #  hlsCheck.enable = true;
-          # };
+          devShell = {
+           enable = true;
+          };
         };
 
         packages.default = self'.packages.clickhouse-haskell;
