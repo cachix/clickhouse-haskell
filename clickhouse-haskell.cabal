@@ -40,7 +40,7 @@ library
 
     -- Other library packages from which modules are imported.
     build-depends:    aeson,
-                      base ^>=4.16.4.0,
+                      base >=4.16.4.0,
                       bytestring,
                       extra,
                       http-client,
@@ -76,6 +76,6 @@ test-suite clickhouse-haskell-test
     -- Test dependencies.
     build-depends:
         aeson,
-        base ^>=4.16.4.0,
+        base >=4.16.4.0,
         clickhouse-haskell,
         hspec
